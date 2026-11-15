@@ -1,7 +1,6 @@
-# Multiverse
+# Rick & Morty Character Explorer
 
-A Flutter character directory for Rick and Morty, styled with a warm neutral
-palette and rounded cards inspired by the provided design reference.
+A Flutter character directory for Rick and Morty.
 
 ## Features
 
