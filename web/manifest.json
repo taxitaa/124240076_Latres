@@ -1,11 +1,11 @@
 {
-    "name": "latres",
-    "short_name": "latres",
+    "name": "Rick & Morty Character Explorer",
+    "short_name": "Rick & Morty",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Explore characters from Rick and Morty.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
