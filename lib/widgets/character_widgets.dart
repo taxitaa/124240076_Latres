@@ -13,6 +13,46 @@ BoxDecoration cardDecoration() {
   );
 }
 
+class CharacterMark extends StatelessWidget {
+  const CharacterMark({this.size = 37, super.key});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.olive,
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: const Color(0xFF9DCB58),
+          width: size > 40 ? 3 : 2,
+        ),
+      ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Icon(Icons.person_rounded, color: Colors.white, size: size * 0.58),
+          Positioned(
+            top: size * 0.13,
+            right: size * 0.13,
+            child: Container(
+              width: size * 0.12,
+              height: size * 0.12,
+              decoration: const BoxDecoration(
+                color: Color(0xFF9DCB58),
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class BrandHeader extends StatelessWidget {
   const BrandHeader({this.onLogout, super.key});
 
@@ -22,19 +62,7 @@ class BrandHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          width: 37,
-          height: 37,
-          decoration: BoxDecoration(
-            color: AppColors.olive,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(
-            Icons.blur_circular_rounded,
-            color: Colors.white,
-            size: 22,
-          ),
-        ),
+        const CharacterMark(),
         const SizedBox(width: 10),
         const Column(
           crossAxisAlignment: CrossAxisAlignment.start,

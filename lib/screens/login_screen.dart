@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/auth_database.dart';
 import '../theme/app_colors.dart';
+import '../widgets/character_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({
@@ -67,17 +68,13 @@ class _LoginScreenState extends State<LoginScreen> {
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(
-                    Icons.blur_circular_rounded,
-                    size: 54,
-                    color: AppColors.olive,
-                  ),
-                  const SizedBox(height: 12),
+                  const Center(child: CharacterMark(size: 76)),
+                  const SizedBox(height: 16),
                   const Text(
                     'Welcome back',
                     textAlign: TextAlign.center,
@@ -92,50 +89,76 @@ class _LoginScreenState extends State<LoginScreen> {
                     'Login untuk menjelajahi karakter Rick and Morty.',
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 28),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    validator: (value) => value == null || !value.contains('@')
-                        ? 'Masukkan email yang valid.'
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _hidePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      suffixIcon: IconButton(
-                        onPressed: () =>
-                            setState(() => _hidePassword = !_hidePassword),
-                        icon: Icon(
-                          _hidePassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
-                        ),
+                  const SizedBox(height: 24),
+                  Container(
+                    decoration: cardDecoration(),
+                    padding: const EdgeInsets.all(22),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                            ),
+                            validator: (value) =>
+                                value == null || !value.contains('@')
+                                ? 'Masukkan email yang valid.'
+                                : null,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _hidePassword,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              suffixIcon: IconButton(
+                                onPressed: () => setState(
+                                  () => _hidePassword = !_hidePassword,
+                                ),
+                                icon: Icon(
+                                  _hidePassword
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                ),
+                              ),
+                            ),
+                            validator: (value) => value == null || value.isEmpty
+                                ? 'Password wajib diisi.'
+                                : null,
+                            onFieldSubmitted: (_) => _login(),
+                          ),
+                          const SizedBox(height: 20),
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48),
+                              backgroundColor: AppColors.olive,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            onPressed: _isLoading ? null : _login,
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text('Login'),
+                          ),
+                          const SizedBox(height: 8),
+                          TextButton(
+                            onPressed: _isLoading ? null : widget.onRegisterTap,
+                            child: const Text('Belum punya akun? Register'),
+                          ),
+                        ],
                       ),
                     ),
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Password wajib diisi.'
-                        : null,
-                    onFieldSubmitted: (_) => _login(),
-                  ),
-                  const SizedBox(height: 20),
-                  FilledButton(
-                    onPressed: _isLoading ? null : _login,
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Login'),
-                  ),
-                  TextButton(
-                    onPressed: _isLoading ? null : widget.onRegisterTap,
-                    child: const Text('Belum punya akun? Register'),
                   ),
                 ],
               ),
