@@ -4,8 +4,8 @@ A Flutter character directory for Rick and Morty.
 
 ## Features
 
-- Browse and search characters from the Rick and Morty API.
-- Filter the loaded characters by status and species.
+- Browse characters from the Rick and Morty API.
+- Filter loaded characters by status from the home screen.
 - Open a character detail page with origin, location, and episode count.
 - Save favorite characters during the current app session.
 - Load additional pages of API results.

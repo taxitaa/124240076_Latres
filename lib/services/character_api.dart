@@ -39,15 +39,9 @@ class CharacterApi {
   static const _url = 'https://rickandmortyapi.com/api/character';
   static const _episodeUrl = 'https://rickandmortyapi.com/api/episode';
 
-  Future<CharacterPage> fetchCharacters({
-    int page = 1,
-    String query = '',
-  }) async {
+  Future<CharacterPage> fetchCharacters({int page = 1}) async {
     final uri = Uri.parse(_url).replace(
-      queryParameters: {
-        'page': '$page',
-        if (query.trim().isNotEmpty) 'name': query.trim(),
-      },
+      queryParameters: {'page': '$page'},
     );
     final client = HttpClient()
       ..connectionTimeout = const Duration(seconds: 15);
@@ -64,10 +58,6 @@ class CharacterApi {
           .join()
           .timeout(const Duration(seconds: 15));
 
-      if (response.statusCode == HttpStatus.notFound &&
-          query.trim().isNotEmpty) {
-        return const CharacterPage(characters: [], nextPage: null);
-      }
       if (response.statusCode != HttpStatus.ok) {
         throw HttpException(
           'Server mengembalikan status ${response.statusCode}.',

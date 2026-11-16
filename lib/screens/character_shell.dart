@@ -4,9 +4,9 @@ import '../models/character.dart';
 import '../services/character_api.dart';
 import '../services/favorite_storage.dart';
 import '../theme/app_colors.dart';
+import 'all_characters_screen.dart';
 import 'character_detail_screen.dart';
 import 'episodes_screen.dart';
-import 'explore_screen.dart';
 import 'home_screen.dart';
 import 'saved_screen.dart';
 
@@ -26,16 +26,13 @@ class CharacterShell extends StatefulWidget {
 
 class _CharacterShellState extends State<CharacterShell> {
   final _api = CharacterApi();
-  final _exploreSearchController = TextEditingController();
   final _favorites = <int, Character>{};
   List<Character> _characters = [];
   int? _nextPage = 1;
   int _tabIndex = 0;
-  String _query = '';
   String _filter = 'All';
   Object? _loadError;
   bool _isLoading = true;
-  bool _isLoadingMore = false;
   bool _isReady = false;
 
   @override
@@ -43,12 +40,6 @@ class _CharacterShellState extends State<CharacterShell> {
     super.initState();
     _restoreFavorites();
     _loadCharacters();
-  }
-
-  @override
-  void dispose() {
-    _exploreSearchController.dispose();
-    super.dispose();
   }
 
   List<Character> get _filteredCharacters {
@@ -87,55 +78,51 @@ class _CharacterShellState extends State<CharacterShell> {
     }
   }
 
-  Future<void> _loadCharacters({bool append = false}) async {
-    if (append) {
-      if (_isLoadingMore || _nextPage == null) return;
-      setState(() {
-        _isLoadingMore = true;
-        _loadError = null;
-      });
-    } else {
-      setState(() {
-        _isLoading = true;
-        _loadError = null;
-        _characters = [];
-        _nextPage = 1;
-      });
-    }
+  Future<void> _loadCharacters() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+      _characters = [];
+      _nextPage = 1;
+    });
 
     try {
-      final result = await _api.fetchCharacters(
-        page: append ? _nextPage! : 1,
-        query: _query,
-      );
+      final result = await _api.fetchCharacters();
       if (!mounted) return;
       setState(() {
-        _characters = append
-            ? [..._characters, ...result.characters]
-            : result.characters;
+        _characters = result.characters;
         _nextPage = result.nextPage;
         _isLoading = false;
-        _isLoadingMore = false;
       });
     } catch (error) {
       if (!mounted) return;
       setState(() {
         _loadError = error;
         _isLoading = false;
-        _isLoadingMore = false;
       });
     }
   }
 
-  void _search(String value) {
-    final query = value.trim();
-    if (query == _query) return;
+  Future<void> _viewAllCharacters() async {
+    final result = await Navigator.of(context)
+        .push<AllCharactersResult>(
+          MaterialPageRoute<AllCharactersResult>(
+            builder: (_) => AllCharactersScreen(
+              characters: _characters,
+              nextPage: _nextPage,
+              status: _filter,
+              favorites: _favorites.keys.toSet(),
+              isFavorite: (id) => _favorites.containsKey(id),
+              onFavoriteToggle: _toggleFavorite,
+              onCharacterTap: _openDetails,
+            ),
+          ),
+        );
+    if (!mounted || result == null) return;
     setState(() {
-      _query = query;
-      _filter = 'All';
+      _characters = result.characters;
+      _nextPage = result.nextPage;
     });
-    _exploreSearchController.text = query;
-    _loadCharacters();
   }
 
   Future<void> _toggleFavorite(Character character) async {
@@ -200,35 +187,17 @@ class _CharacterShellState extends State<CharacterShell> {
     final pages = [
       HomeScreen(
         username: widget.username,
-        characters: _characters,
-        isLoading: _isLoading,
-        loadError: _loadError,
-        favorites: _favorites.keys.toSet(),
-        onLogout: _confirmLogout,
-        onFavoriteToggle: _toggleFavorite,
-        onCharacterTap: _openDetails,
-        onViewAll: () => setState(() => _tabIndex = 1),
-        onRetry: _loadCharacters,
-      ),
-      ExploreScreen(
         characters: _filteredCharacters,
         isLoading: _isLoading,
         loadError: _loadError,
-        searchController: _exploreSearchController,
-        filter: _filter,
+        selectedStatus: _filter,
         favorites: _favorites.keys.toSet(),
         onLogout: _confirmLogout,
-        nextPage: _nextPage,
-        isLoadingMore: _isLoadingMore,
-        onSearch: _search,
-        onFilterSelected: (filter) => setState(() => _filter = filter),
         onFavoriteToggle: _toggleFavorite,
         onCharacterTap: _openDetails,
-        onLoadMore: () => _loadCharacters(append: true),
+        onStatusSelected: (filter) => setState(() => _filter = filter),
+        onViewAll: _viewAllCharacters,
         onRetry: _loadCharacters,
-      ),
-      EpisodesScreen(
-        onLogout: _confirmLogout,
       ),
       SavedScreen(
         characters: _favorites.values.toList(growable: false),
@@ -236,6 +205,9 @@ class _CharacterShellState extends State<CharacterShell> {
         onLogout: _confirmLogout,
         onCharacterTap: _openDetails,
         onFavoriteToggle: _toggleFavorite,
+      ),
+      EpisodesScreen(
+        onLogout: _confirmLogout,
       ),
     ];
 
@@ -252,19 +224,14 @@ class _CharacterShellState extends State<CharacterShell> {
         destinations: [
           _navDestination(Icons.home_outlined, Icons.home_rounded, 'Home'),
           _navDestination(
-            Icons.search_rounded,
-            Icons.travel_explore_rounded,
-            'Explore',
+            Icons.favorite_border_rounded,
+            Icons.favorite_rounded,
+            'Favorite',
           ),
           _navDestination(
             Icons.movie_outlined,
             Icons.movie_rounded,
-            'Episodes',
-          ),
-          _navDestination(
-            Icons.favorite_border_rounded,
-            Icons.favorite_rounded,
-            'Saved',
+            'Episode',
           ),
         ],
       ),

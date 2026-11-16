@@ -103,51 +103,6 @@ class BrandHeader extends StatelessWidget {
   }
 }
 
-class CharacterSearchField extends StatelessWidget {
-  const CharacterSearchField({
-    required this.controller,
-    required this.onSearch,
-    super.key,
-  });
-
-  final TextEditingController controller;
-  final ValueChanged<String> onSearch;
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      textInputAction: TextInputAction.search,
-      onSubmitted: onSearch,
-      decoration: InputDecoration(
-        hintText: 'Search character, species...',
-        hintStyle: const TextStyle(color: AppColors.muted, fontSize: 12),
-        prefixIcon: const Icon(
-          Icons.search_rounded,
-          color: AppColors.olive,
-          size: 20,
-        ),
-        suffixIcon: IconButton(
-          tooltip: 'Search',
-          onPressed: () => onSearch(controller.text),
-          icon: const Icon(
-            Icons.tune_rounded,
-            color: AppColors.olive,
-            size: 19,
-          ),
-        ),
-        filled: true,
-        fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(vertical: 13),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(18),
-          borderSide: BorderSide.none,
-        ),
-      ),
-    );
-  }
-}
-
 class _FilterButton extends StatelessWidget {
   const _FilterButton({
     required this.label,

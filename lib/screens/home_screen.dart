@@ -10,10 +10,12 @@ class HomeScreen extends StatelessWidget {
     required this.characters,
     required this.isLoading,
     required this.loadError,
+    required this.selectedStatus,
     required this.favorites,
     required this.onFavoriteToggle,
     required this.onCharacterTap,
     required this.onLogout,
+    required this.onStatusSelected,
     required this.onViewAll,
     required this.onRetry,
     super.key,
@@ -23,10 +25,12 @@ class HomeScreen extends StatelessWidget {
   final List<Character> characters;
   final bool isLoading;
   final Object? loadError;
+  final String selectedStatus;
   final Set<int> favorites;
   final ValueChanged<Character> onFavoriteToggle;
   final ValueChanged<Character> onCharacterTap;
   final VoidCallback onLogout;
+  final ValueChanged<String> onStatusSelected;
   final VoidCallback onViewAll;
   final VoidCallback onRetry;
 
@@ -53,14 +57,24 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        const SectionTitle(title: 'Featured Character', trailing: '01 / 20'),
+        CharacterFilterRow(
+          selected: selectedStatus,
+          onSelected: onStatusSelected,
+        ),
+        const SizedBox(height: 18),
+        SectionTitle(
+          title: selectedStatus == 'All'
+              ? 'Featured Character'
+              : '$selectedStatus Characters',
+          trailing: '${characters.length}',
+        ),
         const SizedBox(height: 12),
         if (isLoading)
           const LoadingCard(height: 264)
         else if (loadError != null)
           ErrorCard(error: loadError!, onRetry: onRetry)
         else if (characters.isEmpty)
-          const EmptyCard(message: 'No characters found. Try another name.')
+          const EmptyCard(message: 'No characters found with this status.')
         else
           FeaturedCharacterCard(
             character: characters.first,
@@ -69,13 +83,13 @@ class HomeScreen extends StatelessWidget {
             onFavoriteTap: () => onFavoriteToggle(characters.first),
           ),
         const SizedBox(height: 25),
-        SectionTitle(
-          title: 'Popular Characters',
-          trailing: 'View all',
-          onTrailing: onViewAll,
-        ),
-        const SizedBox(height: 13),
-        if (!isLoading && loadError == null && characters.length > 1)
+        if (!isLoading && loadError == null && characters.length > 1) ...[
+          SectionTitle(
+            title: 'More Characters',
+            trailing: 'View all',
+            onTrailing: onViewAll,
+          ),
+          const SizedBox(height: 13),
           SizedBox(
             height: 176,
             child: ListView.separated(
@@ -92,11 +106,8 @@ class HomeScreen extends StatelessWidget {
                 );
               },
             ),
-          )
-        else if (isLoading)
-          const LoadingCard(height: 176)
-        else
-          const EmptyCard(message: 'More characters will appear here.'),
+          ),
+        ],
       ],
     );
   }
